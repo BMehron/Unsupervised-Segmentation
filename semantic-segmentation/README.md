@@ -76,7 +76,7 @@ python dsm_bbox_masked_attn.py extract_bbox_features_masked_attn \
 
 In step (4), if you want to run **Optimal Transport Clustering**, run this command instead of command 4:
 ```bash
-python optimal_transport_clustering.py kmean_bbox_clusters \
+python custom_clusterings.py bbox_clusters \
             --bbox_features_file "./data/${DATASET}/multi_region_bboxes/${MATRIX}/bbox_features.pth" \
             --output_file "./data/${DATASET}/multi_region_bboxes/${MATRIX}/bbox_clusters.pth"
             --method_of_clustering "otc"
@@ -85,9 +85,10 @@ python optimal_transport_clustering.py kmean_bbox_clusters \
 
 In step (4), if you want to run **Attention-Based-Clustering**, run this command instead of command 4:
 ```bash
-python optimal_transport_clustering.py kmean_bbox_clusters \
+python custom_clusterings.py bbox_clusters \
             --bbox_features_file "./data/${DATASET}/multi_region_bboxes/${MATRIX}/bbox_features.pth" \
             --output_file "./data/${DATASET}/multi_region_bboxes/${MATRIX}/bbox_clusters.pth"
             --method_of_clustering "abc"
+```
 
 Please note that the unsupervised semantic segmentation results have very high variance; some runs are much better than others. This variance is primarily due to the random seeds of the K-means clustering steps above, and it is secondarily due to randomness in the self-training stage. Also please note that this code has been heavily re-factored for its public release. Although we try to ensure that there are no bugs, it is nevertheless possible that there is a bug we have overlooked. 
