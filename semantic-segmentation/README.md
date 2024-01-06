@@ -2,7 +2,7 @@
 
 We begin by extracting features and eigenvectors from our images. For instructions on this process, follow the steps in "Extraction" in the main `README`. 
 
-Next, we obtain coarse (i.e. patch-level) semantic segmentations. This process involves (1) extracting segments from the eigenvectors, (2) taking a bounding box around them, (3) extracting features for these boxes, (4) clustering these features, (5) obtaining coarse semantic segmentations. 
+Next, we obtain coarse (i.e. patch-level) semantic segmentations following **Deep Spectral Method* paper approach. This process involves (1) extracting segments from the eigenvectors, (2) taking a bounding box around them, (3) extracting features for these boxes, (4) clustering these features, (5) obtaining coarse semantic segmentations. 
 ```
 
 For example, you can run the following in the `extract` directory. 
@@ -55,6 +55,13 @@ python extract.py extract_semantic_segmentations \
 At this point, you can evaluate the segmentations using `eval.py` in this directory. For example:
 ```bash
 python eval.py segments_dir="/output_dir/from/above"
+```
+
+In step (1), if you want to extract multi region segmentations using **Adaptive Concept Generator (ACG)**, run this command instead of command 1:
+```bash
+python ACG.py extract_multi_region_segmentations \
+    --features_dir "./data/${DATASET}/features/${MODEL}/all_features.pth" \
+    --output_dir "./data/${DATASET}/multi_region_segmentation/${MATRIX}"
 ```
 
 In step (3), if you want to extract the **masked attention** for the DINO CLS instead of just the CLS token, run this command instead of command 3:
