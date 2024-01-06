@@ -8,14 +8,6 @@
 ### Description
 This code accompanies the final report. 
 
-
-### Demo
-Please check out our interactive demo on [Huggingface Spaces](https://huggingface.co/spaces/lukemelas/deep-spectral-segmentation)! The demo enables you to upload an image and outputs the eigenvectors extracted by our method. It does not perform the downstream tasks in our paper (e.g. semantic segmentation), but it should give you some intuition for how you might use utilize our method for your own research/use-case. 
-
-### Examples
-
-![Examples](https://lukemelas.github.io/deep-spectral-segmentation/images/example.png)
-
 ### How to run   
 
 #### Dependencies
@@ -91,97 +83,9 @@ data
     └── ...
 ```
 
-At this point, you are ready to use the eigenvectors for downstream tasks such as object localization, object segmentation, and semantic segmentation. 
+At this point, you are ready to use the eigenvectors for downstream task semantic segmentation. 
 
-#### Object Localization
-
-First, clone the `dino` repo inside this project root (or symlink it).
-```bash
-git clone https://github.com/facebookresearch/dino
-```
-
-Run the steps above to save your eigenvectors inside a directory, which we will now call `${EIGS_DIR}`. You can then move to the `object-localization` directory and evaluate object localization with:
-```bash
-python main.py \
-    --eigenseg \
-    --precomputed_eigs_dir ${EIGS_DIR} \
-    --dataset VOC12 \
-    --name "example_eigs"
-```
-
-#### Object Segmentation
-
-To perform object segmentation (i.e. single-region segmentations), you first extract features and eigenvectors (as described above). You then extract coarse (i.e. patch-level) single-region segmentations from the eigenvectors, and then turn these into high-resolution segmentations using a CRF.
-
-Below, we will give example commands for the CUB bird dataset (`CUB_200_2011`). To download this dataset, as well as the three other object segmentation datasets used in our paper, you can follow the instructions in [unsupervised-image-segmentation](https://github.com/lukemelas/unsupervised-image-segmentation). Then make sure to specify the `data_root` parameter in the `config/eval.yaml`.
-
-For example:
-```bash
-
-# Example dataset
-DATASET=CUB_200_2011
-
-# Features
-python extract.py extract_features \
-    --images_list "./data/object-segmentation/${DATASET}/lists/images.txt" \
-    --images_root "./data/object-segmentation/${DATASET}/images" \
-    --output_dir "./data/object-segmentation/${DATASET}/features/dino_vits16" \
-    --model_name dino_vits16 \
-    --batch_size 1
-
-# Eigenvectors
-python extract.py extract_eigs \
-    --images_root "./data/object-segmentation/${DATASET}/images" \
-    --features_dir "./data/object-segmentation/${DATASET}/features/dino_vits16/" \
-    --which_matrix "laplacian" \
-    --output_dir "./data/object-segmentation/${DATASET}/eigs/laplacian_dino_vits16" \
-    --K 2 \
-
-
-# Extract single-region segmentatiosn
-python extract.py extract_single_region_segmentations \
-    --features_dir "./data/object-segmentation/${DATASET}/features/dino_vits16" \
-    --eigs_dir "./data/object-segmentation/${DATASET}/eigs/laplacian_dino_vits16" \
-    --output_dir "./data/object-segmentation/${DATASET}/single_region_segmentation/patches/laplacian_dino_vits16"
-
-# With CRF
-# Optionally, you can also use `--multiprocessing 64` to speed up computation by running on 64 processes
-python extract.py extract_crf_segmentations \
-    --images_list "./data/object-segmentation/${DATASET}/lists/images.txt" \
-    --images_root "./data/object-segmentation/${DATASET}/images" \
-    --segmentations_dir "./data/object-segmentation/${DATASET}/single_region_segmentation/patches/laplacian_dino_vits16" \
-    --output_dir "./data/object-segmentation/${DATASET}/single_region_segmentation/crf/laplacian_dino_vits16" \
-    --downsample_factor 16 \
-    --num_classes 2
-```
-
-After this extraction process, you should have a file with full-resolution segmentations. Then to evaluate on object segmentation, you can move into the `object-segmentation` directory and run `python main.py`. For example:
-
-```bash
-python main.py predictions.root="./data/object-segmentation" predictions.run="single_region_segmentation/crf/laplacian_dino_vits16"
-```
-
-By default, this assumes that all four object segmentations are available. To run on a custom dataset or only a subset of these datasets, simply edit `configs/eval.yaml`. 
-
-Also, if you want to visualize your segmentations, you should be able to use `streamlit run extract.py vis_segmentations` (after installing streamlit). 
 
 #### Semantic Segmentation
 
 For semantic segmentation, we provide full instructions in the `semantic-segmentation` subfolder.
-
-#### Acknowledgements
-
-L. M. K. acknowledges the generous support of the Rhodes Trust. C. R. is supported by Innovate UK (project 71653) on behalf of UK Research and Innovation (UKRI) and by the European Research Council (ERC) IDIU-638009. I. L. and A. V. are supported by the VisualAI EPSRC programme grant (EP/T028572/1).
-
-We would like to acknowledge LOST ([paper](https://arxiv.org/abs/2109.14279) and [code](https://github.com/valeoai/LOST)), whose code we adapt for our object localization experiments. If you are interested in object localization, we suggest checking out their work! 
-
-#### Citation   
-```
-@inproceedings{
-    melaskyriazi2022deep,
-    title={Deep Spectral Methods: A Surprisingly Strong Baseline for Unsupervised Semantic Segmentation and Localization}
-    author={Luke Melas-Kyriazi and Christian Rupprecht and Iro Laina and Andrea Vedaldi}
-    year={2022}
-    booktitle={CVPR}
-}
-```   
