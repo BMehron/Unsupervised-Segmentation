@@ -4,6 +4,19 @@ We begin by extracting features and eigenvectors from our images. For instructio
 
 Next, we obtain coarse (i.e. patch-level) semantic segmentations. This process involves (1) extracting segments from the eigenvectors, (2) taking a bounding box around them, (3) extracting features for these boxes, (4) clustering these features, (5) obtaining coarse semantic segmentations. 
 
+In step (3), if you want to extract the **masked attention** for the DINO CLS instead of just the CLS token, run this command instead of command 3:
+python dsm_bbox_masked_attn.py extract_bbox_features_masked_attn \
+            --model_name ${MODEL} \
+            --images_root "./data/${DATASET}/images" \
+            --bbox_file "./data/${DATASET}/multi_region_bboxes/${MATRIX}/bboxes.pth" \
+            --output_file "./data/${DATASET}/multi_region_bboxes/${MATRIX}/bbox_features.pth"
+            
+In step (4), if you want to run **Optimal Transport Clustering**, run this command instead of command 4:
+python optimal_transport_clustering.py kmean_bbox_clusters \
+            --bbox_features_file "./data/${DATASET}/multi_region_bboxes/${MATRIX}/bbox_features.pth" \
+            --output_file "./data/${DATASET}/multi_region_bboxes/${MATRIX}/bbox_clusters.pth" 
+
+
 For example, you can run the following in the `extract` directory. 
 
 ```bash
@@ -16,14 +29,14 @@ N_SEG=15
 N_ERODE=2
 N_DILATE=5
 
-# Extract segments
+# 1. Extract segments
 python extract.py extract_multi_region_segmentations \
     --non_adaptive_num_segments ${N_SEG} \
     --features_dir "./data/${DATASET}/features/${MODEL}" \
     --eigs_dir "./data/${DATASET}/eigs/${MATRIX}" \
     --output_dir "./data/${DATASET}/multi_region_segmentation/${MATRIX}"
 
-# Extract bounding boxes
+# 2. Extract bounding boxes
 python extract.py extract_bboxes \
     --features_dir "./data/${DATASET}/features/${MODEL}" \
     --segmentations_dir "./data/${DATASET}/multi_region_segmentation/${MATRIX}" \
@@ -32,19 +45,19 @@ python extract.py extract_bboxes \
     --downsample_factor ${DOWNSAMPLE} \
     --output_file "./data/${DATASET}/multi_region_bboxes/${MATRIX}/bboxes.pth"
 
-# Extract bounding box features
+# 3. Extract bounding box features
 python extract.py extract_bbox_features \
     --model_name ${MODEL} \
     --images_root "./data/${DATASET}/images" \
     --bbox_file "./data/${DATASET}/multi_region_bboxes/${MATRIX}/bboxes.pth" \
     --output_file "./data/${DATASET}/multi_region_bboxes/${MATRIX}/bbox_features.pth"
 
-# Extract clusters
+# 4. Extract clusters
 python extract.py extract_bbox_clusters \
     --bbox_features_file "./data/${DATASET}/multi_region_bboxes/${MATRIX}/bbox_features.pth" \
     --output_file "./data/${DATASET}/multi_region_bboxes/${MATRIX}/bbox_clusters.pth" 
 
-# Create semantic segmentations
+# 5. Create semantic segmentations
 python extract.py extract_semantic_segmentations \
     --segmentations_dir "./data/${DATASET}/multi_region_segmentation/${MATRIX}" \
     --bbox_clusters_file "./data/${DATASET}/multi_region_bboxes/${MATRIX}/bbox_clusters.pth" \
