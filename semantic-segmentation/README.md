@@ -13,8 +13,9 @@ python dsm_bbox_masked_attn.py extract_bbox_features_masked_attn \
             --output_file "./data/${DATASET}/multi_region_bboxes/${MATRIX}/bbox_features.pth"
 ```
 
-```bash
+
 In step (4), if you want to run **Optimal Transport Clustering**, run this command instead of command 4:
+```bash
 python optimal_transport_clustering.py kmean_bbox_clusters \
             --bbox_features_file "./data/${DATASET}/multi_region_bboxes/${MATRIX}/bbox_features.pth" \
             --output_file "./data/${DATASET}/multi_region_bboxes/${MATRIX}/bbox_clusters.pth" 
