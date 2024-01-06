@@ -18,7 +18,17 @@ In step (4), if you want to run **Optimal Transport Clustering**, run this comma
 ```bash
 python optimal_transport_clustering.py kmean_bbox_clusters \
             --bbox_features_file "./data/${DATASET}/multi_region_bboxes/${MATRIX}/bbox_features.pth" \
-            --output_file "./data/${DATASET}/multi_region_bboxes/${MATRIX}/bbox_clusters.pth" 
+            --output_file "./data/${DATASET}/multi_region_bboxes/${MATRIX}/bbox_clusters.pth"
+            --method_of_clustering "otc"
+
+```
+
+In step (4), if you want to run **Attention-Based-Clustering**, run this command instead of command 4:
+```bash
+python optimal_transport_clustering.py kmean_bbox_clusters \
+            --bbox_features_file "./data/${DATASET}/multi_region_bboxes/${MATRIX}/bbox_features.pth" \
+            --output_file "./data/${DATASET}/multi_region_bboxes/${MATRIX}/bbox_clusters.pth"
+            --method_of_clustering "abc"
 
 ```
 
