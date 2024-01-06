@@ -3,33 +3,6 @@
 We begin by extracting features and eigenvectors from our images. For instructions on this process, follow the steps in "Extraction" in the main `README`. 
 
 Next, we obtain coarse (i.e. patch-level) semantic segmentations. This process involves (1) extracting segments from the eigenvectors, (2) taking a bounding box around them, (3) extracting features for these boxes, (4) clustering these features, (5) obtaining coarse semantic segmentations. 
-
-In step (3), if you want to extract the **masked attention** for the DINO CLS instead of just the CLS token, run this command instead of command 3:
-```bash
-python dsm_bbox_masked_attn.py extract_bbox_features_masked_attn \
-            --model_name ${MODEL} \
-            --images_root "./data/${DATASET}/images" \
-            --bbox_file "./data/${DATASET}/multi_region_bboxes/${MATRIX}/bboxes.pth" \
-            --output_file "./data/${DATASET}/multi_region_bboxes/${MATRIX}/bbox_features.pth"
-```
-
-
-In step (4), if you want to run **Optimal Transport Clustering**, run this command instead of command 4:
-```bash
-python optimal_transport_clustering.py kmean_bbox_clusters \
-            --bbox_features_file "./data/${DATASET}/multi_region_bboxes/${MATRIX}/bbox_features.pth" \
-            --output_file "./data/${DATASET}/multi_region_bboxes/${MATRIX}/bbox_clusters.pth"
-            --method_of_clustering "otc"
-
-```
-
-In step (4), if you want to run **Attention-Based-Clustering**, run this command instead of command 4:
-```bash
-python optimal_transport_clustering.py kmean_bbox_clusters \
-            --bbox_features_file "./data/${DATASET}/multi_region_bboxes/${MATRIX}/bbox_features.pth" \
-            --output_file "./data/${DATASET}/multi_region_bboxes/${MATRIX}/bbox_clusters.pth"
-            --method_of_clustering "abc"
-
 ```
 
 For example, you can run the following in the `extract` directory. 
@@ -84,9 +57,30 @@ At this point, you can evaluate the segmentations using `eval.py` in this direct
 python eval.py segments_dir="/output_dir/from/above"
 ```
 
-Optionally, you can also perform self-training using `train.py`. You can specify the correct matching using `matching="\"[(0, 0), ... (19, 6), (20, 7)]\""`. This matching may be obtained by first evaluating using `python eval.py`. For example:
+In step (3), if you want to extract the **masked attention** for the DINO CLS instead of just the CLS token, run this command instead of command 3:
 ```bash
-python train.py lr=2e-4 data.loader.batch_size=96 segments_dir="/path/to/segmaps" matching="\"[(0, 0), ... (19, 6), (20, 7)]\""
+python dsm_bbox_masked_attn.py extract_bbox_features_masked_attn \
+            --model_name ${MODEL} \
+            --images_root "./data/${DATASET}/images" \
+            --bbox_file "./data/${DATASET}/multi_region_bboxes/${MATRIX}/bboxes.pth" \
+            --output_file "./data/${DATASET}/multi_region_bboxes/${MATRIX}/bbox_features.pth"
 ```
+
+
+In step (4), if you want to run **Optimal Transport Clustering**, run this command instead of command 4:
+```bash
+python optimal_transport_clustering.py kmean_bbox_clusters \
+            --bbox_features_file "./data/${DATASET}/multi_region_bboxes/${MATRIX}/bbox_features.pth" \
+            --output_file "./data/${DATASET}/multi_region_bboxes/${MATRIX}/bbox_clusters.pth"
+            --method_of_clustering "otc"
+
+```
+
+In step (4), if you want to run **Attention-Based-Clustering**, run this command instead of command 4:
+```bash
+python optimal_transport_clustering.py kmean_bbox_clusters \
+            --bbox_features_file "./data/${DATASET}/multi_region_bboxes/${MATRIX}/bbox_features.pth" \
+            --output_file "./data/${DATASET}/multi_region_bboxes/${MATRIX}/bbox_clusters.pth"
+            --method_of_clustering "abc"
 
 Please note that the unsupervised semantic segmentation results have very high variance; some runs are much better than others. This variance is primarily due to the random seeds of the K-means clustering steps above, and it is secondarily due to randomness in the self-training stage. Also please note that this code has been heavily re-factored for its public release. Although we try to ensure that there are no bugs, it is nevertheless possible that there is a bug we have overlooked. 
