@@ -2,6 +2,8 @@
  
 ## Semester Project: Unsupervised Segmentation
 
+ADOPTED FROM https://github.com/lukemelas/deep-spectral-segmentation/tree/main.
+
 
 </div>
 
@@ -15,7 +17,7 @@ The minimal set of dependencies is listed in `requirements.txt`.
 
 #### Data Preparation
 
-The data preparation process simply consists of collecting your images into a single folder. Here, we describe the process for [Pascal VOC 2012](http://host.robots.ox.ac.uk/pascal/VOC/voc2012//). Pascal VOC 2007 and MS-COCO are similar. 
+The data preparation process simply consists of collecting your images into a single folder. Here is description of the process for [Pascal VOC 2012](http://host.robots.ox.ac.uk/pascal/VOC/voc2012//).
 
 Download the images into a single folder. Then create a text file where each line contains the name of an image file. For example, here is our initial data layout:
 ```
