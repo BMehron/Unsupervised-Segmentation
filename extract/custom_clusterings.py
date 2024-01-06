@@ -20,13 +20,31 @@ import torch
 import torch.nn.functional as F
 from accelerate import Accelerator
 from PIL import Image
-from scipy.sparse.linalg import eigsh
-from sklearn.cluster import KMeans, MiniBatchKMeans
-from sklearn.decomposition import PCA
-from torchvision.utils import draw_bounding_boxes
+
 from tqdm import tqdm
 import os
 
+from transformer_archs import KMeanAttentionBlock
+from torchmetrics.functional.pairwise import pairwise_cosine_similarity
+from torch.linalg import matrix_norm
+
+def attention_based_clustering(data, model_name='ABC_k_2_k_05_lr_3e5_500_epochs_21_clusters'):
+    model = KMeanAttentionBlock(num_clusters = 21, embedding_dim=384, num_heads=1, mlp_dim=512, layer_norm=False, skip_connection=False)
+    model.load_state_dict(torch.load('{}.pth'.format(model_name)))
+    model.to('cuda')
+    model.eval()
+    
+    BATCH_SIZE = 4096
+    
+    clusters = []
+    output = None
+
+    for i, batch_id in enumerate(tqdm(range(0, len(data), BATCH_SIZE), position=0, leave=True)):
+        batch = data[batch_id:batch_id+BATCH_SIZE].unsqueeze(dim=0).to('cuda')
+        features, cluster_centers = model(batch)
+        output = F.relu(pairwise_cosine_similarity(features, cluster_centers))
+        clusters.extend(list(map(lambda x: x.item(), list(torch.argmax(output, dim=-1).cpu()))))
+    return clusters
 
 
 class KMeansOT:
@@ -72,9 +90,10 @@ class KMeansOT:
         return labels
     
 
-def kmean_bbox_clusters(
+def bbox_clusters(
     bbox_features_file: str,
     output_file: str,
+    method_of_clustering: str='otc',
     num_clusters: int = 21, 
     sim_type: str = 'ot',
     max_iter: int = 20,
@@ -84,7 +103,7 @@ def kmean_bbox_clusters(
 ):
     """
     Example:
-        python optimal_transport_clustering.py kmean_bbox_clusters \
+        python custom_clusterings.py bbox_clusters \
             --bbox_features_file "./data/VOC2012/multi_region_bboxes/fixed/bbox_features_e2_d5.pth" \
             --output_file "./data/VOC2012/multi_region_bboxes/fixed/bbox_clusters_e2_d5_pca_32.pth" \
     """
@@ -100,14 +119,19 @@ def kmean_bbox_clusters(
     all_features = all_features.numpy()
 
     # Cluster: K-Means
-    print(f'Computing K-Means clustering with {num_clusters} clusters, sim_type = {sim_type}, max_iter={max_iter}, normalize={normalize}')
-    kmeans_ot = KMeansOT(num_clusters = num_clusters,
-                     sim_type=sim_type, 
-                     max_iters=max_iter, 
-                     ot_temp=ot_temp,
-                     ot_niter = ot_niter,
-                     normalize=normalize)
-    clusters = kmeans_ot.fit_predict(torch.from_numpy(all_features))
+    print(f'Computing K-Means clustering with {num_clusters} clusters, method_of_clustering = {method_of_clustering}')
+    if method_of_clustering == 'otc':
+        kmeans_ot = KMeansOT(num_clusters = num_clusters,
+                         sim_type=sim_type, 
+                         max_iters=max_iter, 
+                         ot_temp=ot_temp,
+                         ot_niter = ot_niter,
+                         normalize=normalize)
+        clusters = kmeans_ot.fit_predict(torch.from_numpy(all_features))
+    elif method_of_clustering == 'abc':
+        clusters = attention_based_clustering(torch.from_numpy(all_features))
+    else:
+        raise Exception("Sorry, choose correct method for clustering!")
     
     # Print 
     _indices, _counts = np.unique(clusters, return_counts=True)
@@ -128,5 +152,5 @@ def kmean_bbox_clusters(
     
 if __name__ == '__main__':
     fire.Fire(dict(
-        kmean_bbox_clusters=kmean_bbox_clusters
+        bbox_clusters=bbox_clusters
     ))

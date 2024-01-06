@@ -68,6 +68,7 @@ def extract_features(
     accelerator = Accelerator(cpu=False, mixed_precision='fp16') # ADDED BY MEKHRON
     # model, dataloader = accelerator.prepare(model, dataloader)
     model = model.to(accelerator.device)
+    all_features = []
 
     # Process
     pbar = tqdm(dataloader, desc='Processing')
@@ -99,6 +100,7 @@ def extract_features(
             output_qkv = feat_out["qkv"].reshape(B, T, 3, num_heads, -1 // num_heads).permute(2, 0, 3, 1, 4)
             # output_dict['q'] = output_qkv[0].transpose(1, 2).reshape(B, T, -1)[:, 1:, :]
             output_dict['k'] = output_qkv[1].transpose(1, 2).reshape(B, T, -1)[:, 1:, :]
+            all_features.append(output_dict['k'].detach().cpu())
             # output_dict['v'] = output_qkv[2].transpose(1, 2).reshape(B, T, -1)[:, 1:, :]
         else:
             raise ValueError(model_name)
@@ -115,7 +117,11 @@ def extract_features(
         # Save
         accelerator.save(output_dict, str(output_file))
         accelerator.wait_for_everyone()
-    
+        
+    all_features = torch.cat(all_features, dim=0)
+    output_file = str(Path(output_dir) / f'all_features.pth')
+    # Save the concatenated tensor using torch.save
+    torch.save(all_features, output_file)
     print(f'Saved features to {output_dir}')
 
 
