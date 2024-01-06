@@ -5,17 +5,21 @@ We begin by extracting features and eigenvectors from our images. For instructio
 Next, we obtain coarse (i.e. patch-level) semantic segmentations. This process involves (1) extracting segments from the eigenvectors, (2) taking a bounding box around them, (3) extracting features for these boxes, (4) clustering these features, (5) obtaining coarse semantic segmentations. 
 
 In step (3), if you want to extract the **masked attention** for the DINO CLS instead of just the CLS token, run this command instead of command 3:
+```bash
 python dsm_bbox_masked_attn.py extract_bbox_features_masked_attn \
             --model_name ${MODEL} \
             --images_root "./data/${DATASET}/images" \
             --bbox_file "./data/${DATASET}/multi_region_bboxes/${MATRIX}/bboxes.pth" \
             --output_file "./data/${DATASET}/multi_region_bboxes/${MATRIX}/bbox_features.pth"
-            
+```
+
+```bash
 In step (4), if you want to run **Optimal Transport Clustering**, run this command instead of command 4:
 python optimal_transport_clustering.py kmean_bbox_clusters \
             --bbox_features_file "./data/${DATASET}/multi_region_bboxes/${MATRIX}/bbox_features.pth" \
             --output_file "./data/${DATASET}/multi_region_bboxes/${MATRIX}/bbox_clusters.pth" 
 
+```
 
 For example, you can run the following in the `extract` directory. 
 
