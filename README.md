@@ -1,20 +1,13 @@
 <div align="center">
  
-## Deep Spectral Methods for Unsupervised Localization and Segmentation (CVPR 2022 - Oral)
+## Semester Project: Unsupervised Segmentation
 
-[![Project](http://img.shields.io/badge/Project%20Page-3d3d8f.svg)](https://lukemelas.github.io/deep-spectral-segmentation/)
-[![Demo](http://img.shields.io/badge/Demo-9acbff.svg)](https://huggingface.co/spaces/lukemelas/deep-spectral-segmentation)
-[![Conference](http://img.shields.io/badge/CVPR-2022-4b44ce.svg)](#)
-[![Paper](http://img.shields.io/badge/Paper-arxiv.1001.2234-B31B1B.svg)](#)
 
 </div>
 
 ### Description
-This code accompanies the paper [Deep Spectral Methods: A Surprisingly Strong Baseline for Unsupervised Semantic Segmentation and Localization](https://lukemelas.github.io/deep-spectral-segmentation/). 
+This code accompanies the final report. 
 
-### Abstract
-
-Unsupervised localization and segmentation are long-standing computer vision challenges that involve decomposing an image into semantically-meaningful segments without any labeled data. These tasks are particularly interesting in an unsupervised setting due to the difficulty and cost of obtaining dense image annotations, but existing unsupervised approaches struggle with complex scenes containing multiple objects. Differently from existing methods, which are purely based on deep learning, we take inspiration from traditional spectral segmentation methods by reframing image decomposition as a graph partitioning problem. Specifically, we examine the eigenvectors of the Laplacian of a feature affinity matrix from self-supervised networks. We find that these eigenvectors already decompose an image into meaningful segments, and can be readily used to localize objects in a scene. Furthermore, by clustering the features associated with these segments across a dataset, we can obtain well-delineated, nameable regions, i.e. semantic segmentations. Experiments on complex datasets (Pascal VOC, MS-COCO) demonstrate that our simple spectral method outperforms the state-of-the-art in unsupervised localization and segmentation by a significant margin. Furthermore, our method can be readily used for a variety of complex image editing tasks, such as background removal and compositing.
 
 ### Demo
 Please check out our interactive demo on [Huggingface Spaces](https://huggingface.co/spaces/lukemelas/deep-spectral-segmentation)! The demo enables you to upload an image and outputs the eigenvectors extracted by our method. It does not perform the downstream tasks in our paper (e.g. semantic segmentation), but it should give you some intuition for how you might use utilize our method for your own research/use-case. 
