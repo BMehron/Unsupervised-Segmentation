@@ -38,11 +38,10 @@ def extract_bbox_features_masked_attn(
 ):
     """
     Example:
-        python extract.py extract_bbox_features \
+        python dsm_bbox_masked_attn.py extract_bbox_features_masked_attn \
             --model_name dino_vits16 \
             --images_root "./data/VOC2012/images" \
             --bbox_file "./data/VOC2012/multi_region_bboxes/fixed/bboxes_e2_d5.pth" \
-            --output_file "./data/VOC2012/features/dino_vits16" \
             --output_file "./data/VOC2012/multi_region_bboxes/fixed/bbox_features_e2_d5.pth" \
     """
 

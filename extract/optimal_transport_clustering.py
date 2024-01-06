@@ -84,9 +84,8 @@ def kmean_bbox_clusters(
 ):
     """
     Example:
-        python extract.py extract_bbox_clusters \
+        python optimal_transport_clustering.py kmean_bbox_clusters \
             --bbox_features_file "./data/VOC2012/multi_region_bboxes/fixed/bbox_features_e2_d5.pth" \
-            --pca_dim 32 --num_clusters 21 --seed 0 \
             --output_file "./data/VOC2012/multi_region_bboxes/fixed/bbox_clusters_e2_d5_pca_32.pth" \
     """
     # Load bounding boxes
